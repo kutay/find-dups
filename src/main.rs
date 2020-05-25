@@ -2,46 +2,18 @@ extern crate walkdir;
 
 use std::collections::HashMap;
 use std::env;
-use std::error::Error;
-use walkdir::{DirEntry, WalkDir};
-
-use blake2::{Blake2b, Digest};
 use std::path::Path;
-use std::{fs, io};
+use std::time::SystemTime;
 
-use rayon::prelude::*;
-
-use chrono::{DateTime, Local, Utc};
+use chrono::{DateTime, Local};
 use log::{info, trace, warn};
-use std::time::{Instant, SystemTime};
+use rayon::prelude::*;
+use walkdir::WalkDir;
 
-#[derive(Debug)]
-struct FileEntry {
-    path: String,
-    hash: String,
-    created: String,
-}
+mod hash;
+mod model;
 
-fn hash_digest(filepath: &Path) -> String {
-    trace!("Hashing file {:?}", filepath);
-
-    let mut file = fs::File::open(filepath).unwrap();
-    let mut hasher = Blake2b::new();
-    let n = io::copy(&mut file, &mut hasher).unwrap();
-    trace!("Bytes processed: {}", n);
-
-    format!("{:x}", hasher.result())
-}
-
-fn is_hidden(entry: &DirEntry) -> bool {
-    entry
-        .file_name()
-        .to_str()
-        .map(|s| s.starts_with("."))
-        .unwrap_or(false)
-}
-
-fn walk_folder(dirpath: &str) -> HashMap<String, Vec<FileEntry>> {
+fn walk_folder(dirpath: &str) -> HashMap<String, Vec<model::FileEntry>> {
     let mut filenames = HashMap::new();
 
     let mut files = vec![];
@@ -60,12 +32,12 @@ fn walk_folder(dirpath: &str) -> HashMap<String, Vec<FileEntry>> {
     }
 
     // Compute hashes
-    let files_with_hashes: Vec<FileEntry> = files
+    let files_with_hashes: Vec<model::FileEntry> = files
         .par_iter()
         .map(|f| {
-            let hash = hash_digest(Path::new(&f.0));
+            let hash = hash::hash_digest(Path::new(&f.0));
 
-            FileEntry {
+            model::FileEntry {
                 path: f.0.to_string(),
                 hash,
                 created: f.1.clone(),
@@ -96,12 +68,15 @@ fn main() {
         panic!("Please provide a path");
     }
 
-    let grouped_files = walk_folder(&args[1]);
+    let mut grouped_files = walk_folder(&args[1]);
 
     // Print
-    for grouped in &grouped_files {
+    for grouped in &mut grouped_files {
         if grouped.1.len() > 1 {
             info!("Found file with {} duplicates", grouped.1.len());
+
+            grouped.1.sort_unstable();
+
             for dup in grouped.1 {
                 info!("    - {:?}     {:?}", dup.path, dup.created);
             }
