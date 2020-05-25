@@ -8,8 +8,10 @@ use blake2::{Blake2b, Digest};
 use std::path::Path;
 use std::{fs, io};
 
+use log::{info, trace, warn};
+
 fn hash_digest(filepath: &Path) -> String {
-    println!("Hashing    : {:?}", filepath);
+    trace!("Hashing    : {:?}", filepath);
     let mut file = fs::File::open(filepath).unwrap();
     let mut hasher = Blake2b::new();
     let n = io::copy(&mut file, &mut hasher).unwrap();
@@ -46,12 +48,14 @@ fn walk_folder(dirpath: &str) {
     }
 
     for filename in filenames {
-        println!("Key    : {}", filename.0);
-        println!("Values : {:?}", filename.1);
+        info!("Key    : {}", filename.0);
+        info!("Values : {:?}", filename.1);
     }
 }
 
 fn main() {
-    walk_folder("/home/aykut/Documents");
+    env_logger::init();
+
+    walk_folder("/home/aykut/.npm");
     // walk_folder("/home/aykut/Documents/find-dupes");
 }
