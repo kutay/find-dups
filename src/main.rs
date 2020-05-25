@@ -33,18 +33,23 @@ fn is_hidden(entry: &DirEntry) -> bool {
 fn walk_folder(dirpath: &str) {
     let mut filenames = HashMap::new();
 
+    let mut files = vec![];
+
+    // Grab all filepaths
     for entry in WalkDir::new(dirpath)
         .into_iter()
         .filter_map(Result::ok)
         .filter(|e| !e.file_type().is_dir() && !e.path_is_symlink())
     {
-        let f_name = String::from(entry.file_name().to_string_lossy());
+        files.push(String::from(entry.path().to_str().unwrap()));
+    }
 
-        let hash = hash_digest(&entry.path());
+    for filepath in files {
+        let hash = hash_digest(Path::new(&filepath));
         let key = hash;
 
         let counter = filenames.entry(key).or_insert(vec![]);
-        counter.push(String::from(entry.path().to_str().unwrap()));
+        counter.push(filepath);
     }
 
     for filename in filenames {
@@ -56,6 +61,6 @@ fn walk_folder(dirpath: &str) {
 fn main() {
     env_logger::init();
 
-    walk_folder("/home/aykut/.npm");
-    // walk_folder("/home/aykut/Documents/find-dupes");
+    // walk_folder("/home/aykut/.npm");
+    walk_folder("/home/aykut/Documents/find-dupes");
 }
