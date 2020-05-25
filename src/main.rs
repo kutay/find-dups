@@ -13,17 +13,16 @@ fn walk_folder(dirpath: &str) {
         .filter(|e| !e.file_type().is_dir())
     {
         let f_name = String::from(entry.file_name().to_string_lossy());
-        let counter = filenames.entry(f_name.clone()).or_insert(0);
-
-        *counter += 1;
+        let counter = filenames.entry(f_name.clone()).or_insert(vec![]);
+        counter.push(String::from(entry.path().to_str().unwrap()));
     }
 
     for filename in filenames {
-        println!("{}", filename.0);
-        println!("{}", filename.1);
+        println!("Key    : {}", filename.0);
+        println!("Values : {:?}", filename.1);
     }
 }
 
 fn main() {
-    let result = walk_folder("/home/aykut/Documents/find-dupes");
+    walk_folder("/home/aykut/Documents/find-dupes");
 }
