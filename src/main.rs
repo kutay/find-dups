@@ -1,6 +1,7 @@
 extern crate walkdir;
 
 use std::collections::HashMap;
+use std::env;
 use std::error::Error;
 use walkdir::{DirEntry, WalkDir};
 
@@ -74,6 +75,10 @@ fn walk_folder(dirpath: &str) {
 fn main() {
     env_logger::init();
 
-    walk_folder("/home/aykut/.npm");
-    // walk_folder("/home/aykut/Documents/find-dupes");
+    let args: Vec<String> = env::args().collect();
+    if args.len() < 2 {
+        panic!("Please provide a path");
+    }
+
+    walk_folder(&args[1]);
 }
