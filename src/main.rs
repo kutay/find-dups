@@ -8,6 +8,8 @@ use blake2::{Blake2b, Digest};
 use std::path::Path;
 use std::{fs, io};
 
+use rayon::prelude::*;
+
 use log::{info, trace, warn};
 
 fn hash_digest(filepath: &Path) -> String {
@@ -44,23 +46,34 @@ fn walk_folder(dirpath: &str) {
         files.push(String::from(entry.path().to_str().unwrap()));
     }
 
-    for filepath in files {
-        let hash = hash_digest(Path::new(&filepath));
-        let key = hash;
+    // Compute hashes
+    let files_with_hashes: Vec<(String, String)> = files
+        .par_iter()
+        .map(|f| {
+            let hash = hash_digest(Path::new(&f));
+            (f.to_string(), hash)
+        })
+        .collect();
+    trace!("Result    : {:?}", files_with_hashes);
 
-        let counter = filenames.entry(key).or_insert(vec![]);
-        counter.push(filepath);
+    // Group files with same hashes
+    for file_with_hash in files_with_hashes {
+        let counter = filenames.entry(file_with_hash.1).or_insert(vec![]);
+        counter.push(file_with_hash.0);
     }
 
+    // Print
     for filename in filenames {
-        info!("Key    : {}", filename.0);
-        info!("Values : {:?}", filename.1);
+        if filename.1.len() > 1 {
+            info!("Key        : {} / {}", filename.1.len(), filename.0);
+            info!("Values     : {:?}", filename.1);
+        }
     }
 }
 
 fn main() {
     env_logger::init();
 
-    // walk_folder("/home/aykut/.npm");
-    walk_folder("/home/aykut/Documents/find-dupes");
+    walk_folder("/home/aykut/.npm");
+    // walk_folder("/home/aykut/Documents/find-dupes");
 }
