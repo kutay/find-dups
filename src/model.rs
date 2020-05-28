@@ -24,3 +24,8 @@ impl PartialEq for FileEntry {
         self.created == other.created
     }
 }
+
+pub(crate) struct SearchOptions {
+    pub(crate) folder: String,
+    pub(crate) skip_hidden_folders: bool,
+}
