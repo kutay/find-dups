@@ -28,4 +28,5 @@ impl PartialEq for FileEntry {
 pub(crate) struct SearchOptions {
     pub(crate) folder: String,
     pub(crate) skip_hidden_folders: bool,
+    pub(crate) skip_folders_names: Vec<String>,
 }

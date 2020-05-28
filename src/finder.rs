@@ -23,17 +23,24 @@ fn is_hidden(entry: &DirEntry) -> bool {
         .unwrap_or(false)
 }
 
+fn skip_folders(e: &DirEntry, opts: &model::SearchOptions) -> bool {
+    !(opts.skip_hidden_folders && is_hidden(e))
+        && !opts
+            .skip_folders_names
+            .contains(&String::from(e.file_name().to_str().unwrap()))
+}
+
 fn file_filter(e: &DirEntry) -> bool {
     !e.file_type().is_dir() && !e.path_is_symlink()
 }
 
-fn walk_folder(dirpath: &str, skip_hidden_folders: bool) -> Vec<(String, String)> {
+fn walk_folder(opts: &model::SearchOptions) -> Vec<(String, String)> {
     let mut files = vec![];
 
     // Grab all filepaths
-    for entry in WalkDir::new(dirpath)
+    for entry in WalkDir::new(opts.folder.as_str())
         .into_iter()
-        .filter_entry(|e| !skip_hidden_folders || !is_hidden(e))
+        .filter_entry(|e| skip_folders(e, opts))
         .filter_map(Result::ok)
         .filter(|e| file_filter(e))
     {
@@ -48,10 +55,10 @@ fn walk_folder(dirpath: &str, skip_hidden_folders: bool) -> Vec<(String, String)
     files
 }
 
-fn search(dirpath: &str, skip_hidden_folders: bool) -> HashMap<String, Vec<model::FileEntry>> {
+fn search(opts: &model::SearchOptions) -> HashMap<String, Vec<model::FileEntry>> {
     let mut filenames = HashMap::new();
 
-    let files = walk_folder(dirpath, skip_hidden_folders);
+    let files = walk_folder(opts);
 
     // Compute hashes
     let files_with_hashes: Vec<model::FileEntry> = files
@@ -78,7 +85,7 @@ fn search(dirpath: &str, skip_hidden_folders: bool) -> HashMap<String, Vec<model
 }
 
 pub(crate) fn search_duplicates(opts: &model::SearchOptions) {
-    let mut grouped_files = search(opts.folder.as_str(), opts.skip_hidden_folders);
+    let mut grouped_files = search(opts);
 
     // Print
     for grouped in &mut grouped_files {
