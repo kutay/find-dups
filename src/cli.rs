@@ -9,7 +9,7 @@ use log::trace;
 struct Opts {
     folder: String,
 
-    #[clap(long)]
+    #[clap(long, about("Skip hidden folders"))]
     skip_hidden_folders: bool,
 
     #[clap(long)]
