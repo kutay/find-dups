@@ -73,7 +73,8 @@ fn search(opts: &model::SearchOptions) -> HashMap<String, Vec<model::FileEntry>>
             }
         })
         .collect();
-    trace!("Result    : {:?}", files_with_hashes);
+
+    trace!("Hashed {} files", files_with_hashes.len());
 
     // Group files with same hashes
     for file_entry in files_with_hashes {
