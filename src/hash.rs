@@ -1,5 +1,5 @@
 use blake2::{Blake2b, Digest};
-use log::{info, trace, warn};
+use log::trace;
 use std::path::Path;
 use std::{fs, io};
 

@@ -1,7 +1,5 @@
 extern crate walkdir;
 
-use std::env;
-
 mod cli;
 mod finder;
 mod hash;

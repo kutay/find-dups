@@ -22,7 +22,7 @@ pub(crate) fn init() -> SearchOptions {
     let skip_folder_names = opts
         .skip_folders
         .unwrap()
-        .split(",")
+        .split(',')
         .map(String::from)
         .collect();
 
@@ -30,11 +30,9 @@ pub(crate) fn init() -> SearchOptions {
     trace!("Opts - skip_hidden_folders  : {}", opts.skip_hidden_folders);
     trace!("Opts - skip_folder_names    : {:?}", skip_folder_names);
 
-    let search_options = model::SearchOptions {
+    model::SearchOptions {
         folder: opts.folder,
         skip_hidden_folders: opts.skip_hidden_folders,
         skip_folders_names: skip_folder_names,
-    };
-
-    search_options
+    }
 }

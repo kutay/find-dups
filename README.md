@@ -10,3 +10,6 @@ This is currently really WIP, and doesn't follow any Rust best practices, as I'm
 ## Usage 
 
 RUST_LOG=trace cargo run /some/folder/to/analyze
+
+RUST_LOG=trace cargo run /some/folder/to/analyze --skip-hidden-folders --skip-folders node_modules,target
+

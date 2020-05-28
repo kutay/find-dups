@@ -3,7 +3,7 @@ use std::path::Path;
 use std::time::SystemTime;
 
 use chrono::{DateTime, Local};
-use log::{info, trace, warn};
+use log::{info, trace};
 use rayon::prelude::*;
 use walkdir::{DirEntry, WalkDir};
 
@@ -19,7 +19,7 @@ fn is_hidden(entry: &DirEntry) -> bool {
     entry
         .file_name()
         .to_str()
-        .map(|s| s.starts_with("."))
+        .map(|s| s.starts_with('.'))
         .unwrap_or(false)
 }
 
