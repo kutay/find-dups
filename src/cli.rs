@@ -21,10 +21,7 @@ pub(crate) fn init() -> SearchOptions {
 
     let skip_folder_names = opts
         .skip_folders
-        .unwrap()
-        .split(',')
-        .map(String::from)
-        .collect();
+        .map_or(vec![], |s| s.split(',').map(String::from).collect());
 
     trace!("Opts - folder               : {}", opts.folder);
     trace!("Opts - skip_hidden_folders  : {}", opts.skip_hidden_folders);
